@@ -11,13 +11,44 @@ server.use(restify.CORS());
 server.use(restify.fullResponse());
 
 
-server.get('/stillclimbing/rest/wikipediaApi', function handler(req, res, next) {
+server.get('/stillclimbing/rest/wikipediaPage', function handler(req, res, next) {
     var title = req.params.title;
+    var lang = req.params.lang || 'en';//if title is in a different language this has to be set to determine with wikipedia url to query
+    var extraLang = lang=='en'?'zh':'en';
 
     var options = {
-        host: 'en.wikipedia.org',
+        host: lang + '.wikipedia.org',
         port: 80,
-        path: '/w/api.php?action=query&prop=extracts&format=json&exintro=&titles=' + title,
+        path: '/w/api.php?action=query&format=json&titles=' + title + '&prop=extracts|pageimages|langlinks|info&exintro=true&pithumbsize=200&lllang='+extraLang,
+        headers: {
+            'User-Agent': 'MyCoolTool/1.1 (xiaoming_t@hotmail.com)'
+        }
+    };
+    var str = '';
+    http.get(options, function(response) {
+        response.on('data', function(chunk) {
+            str += chunk;
+        });
+
+        response.on('end', function() {
+            res.send(JSON.parse(str));
+            return next();
+        });
+    }).on("error", function(e) {
+        console.log("Got error: " + e.message);
+        return next();
+    });
+});
+
+
+server.get('/stillclimbing/rest/wikipediaSearch', function handler(req, res, next) {
+    var title = req.params.title;
+    var lang = req.params.lang || 'en';//if title is in a different language this has to be set to determine with wikipedia url to query
+
+    var options = {
+        host: lang + '.wikipedia.org',
+        port: 80,
+        path: '/w/api.php?action=query&format=json&generator=search&gsrsearch=' + title,
         headers: {
             'User-Agent': 'MyCoolTool/1.1 (xiaoming_t@hotmail.com)'
         }
