@@ -12,14 +12,14 @@ server.use(restify.fullResponse());
 
 
 server.get('/stillclimbing/rest/wikipediaPage', function handler(req, res, next) {
-    var title = req.params.title;
+    var titles = req.params.titles;
     var lang = req.params.lang || 'en';//if title is in a different language this has to be set to determine with wikipedia url to query
     var extraLang = lang=='en'?'zh':'en';
 
     var options = {
         host: lang + '.wikipedia.org',
         port: 80,
-        path: '/w/api.php?action=query&format=json&titles=' + title + '&prop=extracts|pageimages|langlinks|info&exintro=true&pithumbsize=200&lllang='+extraLang,
+        path: '/w/api.php?action=query&format=json&titles=' + titles + '&prop=extracts|pageimages|langlinks|info&exintro=true&pithumbsize=200&lllang='+extraLang+'&redirects&continue=',
         headers: {
             'User-Agent': 'MyCoolTool/1.1 (xiaoming_t@hotmail.com)'
         }
